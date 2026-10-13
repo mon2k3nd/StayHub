@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="upgrade-notifications-table" author="ai">
+        <renameColumn tableName="notifications" oldColumnName="user_id" newColumnName="receiver_id" columnDataType="BIGINT"/>
+        <renameColumn tableName="notifications" oldColumnName="body" newColumnName="content" columnDataType="TEXT"/>
+
+        <addColumn tableName="notifications">
+            <column name="sender_id" type="BIGINT"/>
+            <column name="scope" type="VARCHAR(50)"/>
+            <column name="is_actionable" type="BOOLEAN" defaultValueBoolean="false"/>
+            <column name="action_status" type="VARCHAR(50)"/>
+            <column name="action_metadata" type="TEXT"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="drop-notifications-type-check" author="ai">
+        <dropCheckConstraint tableName="notifications" constraintName="notifications_type_check"/>
+    </changeSet>
+
+</databaseChangeLog>

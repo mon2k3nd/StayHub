@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StayHub - Nền Tảng Quản Trị Bất Động Sản Cho Thuê Số 1 Việt Nam</title>
+    <meta name="description" content="StayHub giúp Chủ nhà quản lý phòng trọ chuyên nghiệp: Tự động hoá dòng tiền, phân tích doanh thu AI, bản đồ nhiệt vận hành. Tối ưu lợi nhuận, giảm thiểu nợ xấu.">
+    <meta name="keywords" content="quản lý phòng trọ, phần mềm cho thuê nhà, phần mềm bất động sản, StayHub, quản lý trọ">
+    <meta property="og:title" content="StayHub - Nền Tảng Quản Trị Bất Động Sản Cho Thuê Số 1 Việt Nam">
+    <meta property="og:description" content="Quản trị dòng tiền chính xác từng nghìn đồng với AI Analytics. Hệ sinh thái PropTech giúp Chủ nhà xóa bỏ sổ sách thủ công.">
+    <meta property="og:image" content="https://stayhub.vn/assets/og-image.jpg">
+    <meta property="og:url" content="https://stayhub.vn">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Particle Canvas -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="glass-nav" id="main-nav">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-house-signal"></i></div>
+                Stay<span class="logo-hub">Hub</span>
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="#features" class="nav-link">Tính Năng</a>
+                <a href="#analytics" class="nav-link">AI Analytics</a>
+                <a href="#testimonials" class="nav-link">Đánh Giá</a>
+                <a href="#pricing" class="nav-link">Bảng Giá</a>
+            </div>
+            <div class="nav-actions">
+                <a href="#" class="btn btn-ghost">Đăng nhập</a>
+                <a href="#pricing" class="btn btn-primary glow-effect" id="cta-nav">Dùng Thử Miễn Phí</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobile-menu">
+        <a href="#features">Tính Năng</a>
+        <a href="#analytics">AI Analytics</a>
+        <a href="#testimonials">Đánh Giá</a>
+        <a href="#pricing">Bảng Giá</a>
+        <a href="#pricing" class="btn btn-primary" style="margin-top: 1rem">Dùng Thử Miễn Phí</a>
+    </div>
+
+    <!-- Hero Section -->
+    <header class="hero" id="home">
+        <div class="hero-background">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="badge-hero animate-fade-up">
+                <span class="badge-dot"></span>
+                🚀 Ra mắt phiên bản 2.0 &mdash; eKYC & AI Analytics
+            </div>
+            <h1 class="hero-title animate-fade-up delay-1">
+                Quản Trị Dòng Tiền<br>
+                <span class="text-gradient">Chính Xác Từng Nghìn Đồng</span>
+            </h1>
+            <p class="hero-subtitle animate-fade-up delay-2">
+                Hệ sinh thái <strong>PropTech số 1</strong> giúp Chủ nhà xóa bỏ sổ sách thủ công. Từ quản lý đa dãy trọ đến phân tích doanh thu bằng AI — tất cả trong một ứng dụng duy nhất.
+            </p>
+            <div class="hero-cta animate-fade-up delay-3">
+                <a href="#pricing" class="btn btn-primary btn-large glow-effect" id="hero-cta-primary">
+                    <i class="fa-solid fa-rocket"></i> Bắt Đầu Miễn Phí
+                </a>
+                <a href="#features" class="btn btn-ghost btn-large">
+                    <i class="fa-solid fa-play-circle"></i> Khám Phá Tính Năng
+                </a>
+            </div>
+            <div class="hero-trust animate-fade-up delay-4">
+                <div class="trust-item">
+                    <span class="trust-number" data-target="1250">0</span>+
+                    <span class="trust-label">Chủ Nhà</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-item">
+                    <span class="trust-number" data-target="18500">0</span>+
+                    <span class="trust-label">Phòng Đang Quản Lý</span>
+                </div>
+                <div class="trust-divider"></div>
+                <div class="trust-item">
+                    <span class="trust-number" data-target="98">0</span>%
+                    <span class="trust-label">Hài Lòng</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual animate-fade-up delay-2">
+            <div class="dashboard-wrapper">
+                <div class="dashboard-glow"></div>
+                <div class="dashboard-card main-card glass-card">
+                    <div class="dc-header">
+                        <div class="dc-dots">
+                            <span class="dot dot-red"></span>
+                            <span class="dot dot-yellow"></span>
+                            <span class="dot dot-green"></span>
+                        </div>
+                        <span class="dc-title">StayHub Dashboard</span>
+                    </div>
+                    <div class="dc-body">
+                        <div class="dc-stat-row">
+                            <div class="dc-stat">
+                                <div class="dc-stat-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+                                <div>
+                                    <div class="dc-stat-label">Doanh Thu Tháng</div>
+                                    <div class="dc-stat-value text-gradient">185,500,000đ</div>
+                                </div>
+                            </div>
+                            <div class="dc-stat">
+                                <div class="dc-stat-icon green"><i class="fa-solid fa-door-open"></i></div>
+                                <div>
+                                    <div class="dc-stat-label">Tỷ Lệ Lấp Đầy</div>
+                                    <div class="dc-stat-value" style="color: #10b981">92.5%</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dc-chart-area">
+                            <div class="dc-chart-bar" style="height:55%"></div>
+                            <div class="dc-chart-bar" style="height:70%"></div>
+                            <div class="dc-chart-bar" style="height:60%"></div>
+                            <div class="dc-chart-bar" style="height:80%"></div>
+                            <div class="dc-chart-bar" style="height:75%"></div>
+                            <div class="dc-chart-bar" style="height:90%"></div>
+                            <div class="dc-chart-bar active" style="height:100%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Floating Cards -->
+                <div class="float-card glass-card fc-1 animate-float-1">
+                    <i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b"></i>
+                    <div class="fc-text">
+                        <div class="fc-label">Cảnh Báo Nợ Xấu</div>
+                        <div class="fc-val">3 trường hợp</div>
+                    </div>
+                </div>
+                <div class="float-card glass-card fc-2 animate-float-2">
+                    <i class="fa-solid fa-shield-check" style="color:#10b981"></i>
+                    <div class="fc-text">
+                        <div class="fc-label">eKYC Verified</div>
+                        <div class="fc-val" style="color: #10b981">✓ Đã xác thực</div>
+                    </div>
+                </div>
+                <div class="float-card glass-card fc-3 animate-float-3">
+                    <i class="fa-solid fa-map-location-dot" style="color:#8b5cf6"></i>
+                    <div class="fc-text">
+                        <div class="fc-label">Heatmap AI</div>
+                        <div class="fc-val" style="color:#8b5cf6">5 điểm nóng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Logos / Trust Band -->
+    <section class="trust-band">
+        <p class="trust-band-label">Được tin dùng bởi các chủ nhà chuyên nghiệp khắp Việt Nam</p>
+        <div class="trust-logos">
+            <span><i class="fa-solid fa-city"></i> Hà Nội</span>
+            <span><i class="fa-solid fa-building"></i> TP.HCM</span>
+            <span><i class="fa-solid fa-landmark"></i> Đà Nẵng</span>
+            <span><i class="fa-solid fa-house-chimney"></i> Cần Thơ</span>
+            <span><i class="fa-solid fa-building-columns"></i> Hải Phòng</span>
+            <span><i class="fa-solid fa-school"></i> Bình Dương</span>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <div class="section-tag">VŨ KHÍ BÍ MẬT</div>
+            <h2 class="section-title">5 Trụ Cột Sức Mạnh</h2>
+            <p class="section-subtitle">Những tính năng độc quyền giúp StayHub vượt trội so với mọi phần mềm quản lý trọ truyền thống.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card glass-card reveal">
+                <div class="feature-number">01</div>
+                <div class="icon-wrapper bg-blue"><i class="fa-solid fa-chart-pie"></i></div>
+                <h3>Financial Analytics</h3>
+                <p>Kiểm soát doanh thu, chi phí tự động. Biểu đồ dòng tiền chi tiết theo từng phòng, từng dãy. Không còn đau đầu chốt sổ cuối tháng.</p>
+                <div class="feature-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <div class="feature-card glass-card reveal">
+                <div class="feature-number">02</div>
+                <div class="icon-wrapper bg-purple"><i class="fa-solid fa-building-user"></i></div>
+                <h3>Occupancy Radar</h3>
+                <p>Phân tích tỷ lệ lấp đầy theo thời gian thực. Báo động ngay khi phòng trống quá lâu để kịp thời xử lý và tối ưu doanh thu.</p>
+                <div class="feature-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <div class="feature-card glass-card reveal">
+                <div class="feature-number">03</div>
+                <div class="icon-wrapper bg-red"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3>Risk Management</h3>
+                <p>Cảnh báo nợ xấu tự động, kiểm tra eKYC khách thuê bằng CCCD thật. Giảm thiểu rủi ro bom tiền, phá phòng, tranh chấp pháp lý.</p>
+                <div class="feature-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <div class="feature-card glass-card reveal">
+                <div class="feature-number">04</div>
+                <div class="icon-wrapper bg-green"><i class="fa-solid fa-wallet"></i></div>
+                <h3>Owner ROI Engine</h3>
+                <p>Mổ xẻ biên lợi nhuận của từng cơ sở, so sánh hiệu suất giữa các dãy nhà. Biết chính xác "con gà đẻ trứng vàng" nằm ở đâu.</p>
+                <div class="feature-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+            <div class="feature-card glass-card reveal">
+                <div class="feature-number">05</div>
+                <div class="icon-wrapper bg-orange"><i class="fa-solid fa-map-location-dot"></i></div>
+                <h3>Geo-Spatial Heatmap</h3>
+                <p>Bản đồ điểm nóng vận hành khu vực. AI khuyến nghị vị trí cần bơm tiền Marketing để tối đa hoá tỷ lệ lấp đầy trong bán kính mong muốn.</p>
+                <div class="feature-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Analytics Showcase -->
+    <section class="analytics-showcase" id="analytics">
+        <div class="showcase-container">
+            <div class="showcase-text reveal-left">
+                <div class="section-tag">AI POWERED</div>
+                <h2 class="section-title">Quyết Định Dựa Trên<br><span class="text-gradient">Dữ Liệu Thực</span></h2>
+                <p class="showcase-desc">Không phỏng đoán. Mọi quyết định vận hành của bạn giờ đây được AI hỗ trợ, dựa trên hàng triệu điểm dữ liệu được xử lý theo thời gian thực.</p>
+                <ul class="check-list">
+                    <li><i class="fa-solid fa-check-circle"></i> <span>Tự động chốt điện nước & tạo hóa đơn hàng tháng</span></li>
+                    <li><i class="fa-solid fa-check-circle"></i> <span>Cổng thanh toán VietQR, chuyển khoản tiện lợi</span></li>
+                    <li><i class="fa-solid fa-check-circle"></i> <span>Push Notification thông báo tiền nhà tự động</span></li>
+                    <li><i class="fa-solid fa-check-circle"></i> <span>Ký hợp đồng số, quản lý pháp lý đầy đủ</span></li>
+                </ul>
+                <a href="#pricing" class="btn btn-primary glow-effect" style="margin-top: 2rem; display: inline-flex;">
+                    <i class="fa-solid fa-bolt"></i> Khám Phá Ngay
+                </a>
+            </div>
+            <div class="showcase-visual reveal-right">
+                <div class="visual-grid">
+                    <div class="vis-card glass-card vis-1">
+                        <div class="vis-header">
+                            <span>Doanh Thu Tháng 7</span>
+                            <span class="vis-badge up">+12% <i class="fa-solid fa-arrow-trend-up"></i></span>
+                        </div>
+                        <div class="vis-number text-gradient">185,500,000đ</div>
+                        <div class="mini-bars">
+                            <div class="mini-bar" style="height:40%"></div>
+                            <div class="mini-bar" style="height:55%"></div>
+                            <div class="mini-bar" style="height:50%"></div>
+                            <div class="mini-bar" style="height:70%"></div>
+                            <div class="mini-bar" style="height:65%"></div>
+                            <div class="mini-bar active" style="height:90%"></div>
+                        </div>
+                    </div>
+                    <div class="vis-card glass-card vis-2">
+                        <div class="vis-header">
+                            <span>Tỷ Lệ Lấp Đầy</span>
+                            <span class="vis-badge up">+5.2%</span>
+                        </div>
+                        <div class="vis-donut">
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <path class="circle" stroke-dasharray="92.5, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <text x="18" y="20.35" class="percentage">92.5%</text>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="vis-card glass-card vis-3">
+                        <div class="vis-icon-large"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="vis-label">Nợ Xấu Cần Xử Lý</div>
+                        <div class="vis-risk-count">3 trường hợp</div>
+                        <div class="vis-risk-desc">2 phòng > 30 ngày</div>
+                    </div>
+                    <div class="vis-card glass-card vis-4">
+                        <div class="vis-icon-large" style="color:#10b981"><i class="fa-solid fa-user-shield"></i></div>
+                        <div class="vis-label">eKYC Đã Xác Thực</div>
+                        <div class="vis-risk-count" style="color:#10b981">486 khách thuê</div>
+                        <div class="vis-risk-desc">Tất cả CCCD hợp lệ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Calculator Section (Phase 7.1) -->
+    <section class="roi-calculator-section" id="roi-calculator">
+        <div class="section-header">
+            <div class="section-tag">ROI CALCULATOR</div>
+            <h2 class="section-title">Khám Phá Lợi Nhuận Bị Bỏ Quên</h2>
+            <p class="section-subtitle">Chỉ mất 5 giây để xem StayHub có thể giúp bạn tiết kiệm bao nhiêu tiền và thời gian mỗi tháng.</p>
+        </div>
+        <div class="roi-container glass-card reveal">
+            <div class="roi-input-area">
+                <label for="roomSlider">Số lượng phòng đang quản lý: <span id="roomCountLabel" class="text-gradient font-bold">50 phòng</span></label>
+                <input type="range" id="roomSlider" class="custom-slider" min="1" max="500" value="50" step="1">
+                <div class="slider-labels">
+                    <span>1 phòng</span>
+                    <span>500 phòng</span>
+                </div>
+                <div class="roi-formula">
+                    *Công thức dựa trên mức thất thoát trung bình 3% doanh thu và 30 phút/phòng/tháng quản lý thủ công.
+                </div>
+            </div>
+            
+            <div class="roi-results-grid">
+                <div class="roi-result-card">
+                    <div class="roi-result-icon"><i class="fa-solid fa-clock"></i></div>
+                    <div class="roi-result-label">Thời Gian Tiết Kiệm</div>
+                    <div class="roi-result-value"><span id="timeSaved">25</span> <small>giờ/tháng</small></div>
+                </div>
+                <div class="roi-result-card">
+                    <div class="roi-result-icon" style="color: #10b981"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+                    <div class="roi-result-label">Chống Thất Thoát</div>
+                    <div class="roi-result-value" style="color: #10b981"><span id="moneySaved">5,000,000</span> <small>VNĐ/tháng</small></div>
+                </div>
+                <div class="roi-result-card highlight-card">
+                    <div class="roi-result-icon" style="color: #fff"><i class="fa-solid fa-rocket"></i></div>
+                    <div class="roi-result-label">Gói Đề Xuất</div>
+                    <div class="roi-result-value"><span id="suggestedPlan">Gói PRO</span></div>
+                    <a href="#pricing" class="btn btn-primary" style="margin-top: 1rem; padding: 0.5rem 1rem">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-header">
+            <div class="section-tag">REVIEW THẬT</div>
+            <h2 class="section-title">Chủ Nhà Nói Gì Về StayHub?</h2>
+            <p class="section-subtitle">Hơn 1.250+ Chủ nhà đã tin tưởng và tăng lợi nhuận nhờ StayHub.</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card glass-card reveal">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p class="testimonial-text">"Trước đây tôi quản lý 30 phòng bằng sổ tay, cuối tháng ngồi tính điện nước hết cả buổi. Từ khi dùng StayHub, mọi thứ tự động hóa 100%. Tiết kiệm ít nhất 20 tiếng/tháng!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #3b82f6, #8b5cf6)">TH</div>
+                    <div class="author-info">
+                        <strong>Trần Văn Hùng</strong>
+                        <span>Chủ 3 dãy trọ, Hà Nội</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card glass-card reveal popular-test">
+                <div class="testimonial-tag">HOT 🔥</div>
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                <p class="testimonial-text">"Tính năng cảnh báo nợ xấu cứu tôi được 45 triệu đồng rồi đó! Hệ thống tự gửi thông báo, tự nhắc nhở, tôi không cần lo lắng từng ngày nữa. Đầu tư vào StayHub PRO xứng đáng lắm!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #10b981, #3b82f6)">NL</div>
+                    <div class="author-info">
+                        <strong>Nguyễn Thị Lan</strong>
+                        <span>Chủ 2 block cao tầng, TP.HCM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card glass-card reveal">
+                <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                <p class="testimonial-text">"Dashboard Analytics rất intuitive, nhìn vào là biết ngay phòng nào đang lỗ, phòng nào đang lãi. Tính năng Heatmap còn giúp tôi quyết định mở thêm dãy trọ mới ở đúng khu vực nóng!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #f59e0b, #ef4444)">PK</div>
+                    <div class="author-info">
+                        <strong>Phạm Quốc Khánh</strong>
+                        <span>Công ty TNHH, Đà Nẵng &mdash; 5 cơ sở</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="section-header">
+            <div class="section-tag">BẢO GIÁ RÕ RÀNG</div>
+            <h2 class="section-title">Chọn Gói Phù Hợp</h2>
+            <p class="section-subtitle">Chỉ từ ly cà phê mỗi ngày, sở hữu ngay hệ thống quản trị trị giá hàng tỷ đồng.</p>
+            <div class="billing-toggle">
+                <span class="toggle-label active" id="label-monthly">Thanh toán Tháng</span>
+                <label class="switch" for="billing-switch">
+                    <input type="checkbox" id="billing-switch">
+                    <span class="slider round"></span>
+                </label>
+                <span class="toggle-label" id="label-yearly">Thanh toán Năm <span class="discount-badge">Giảm 20%</span></span>
+            </div>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- Plan 1: Free -->
+            <div class="pricing-card glass-card reveal" id="plan-free">
+                <div class="plan-icon"><i class="fa-solid fa-seedling"></i></div>
+                <div class="plan-header">
+                    <h3>Gói Cơ Bản</h3>
+                    <div class="plan-price">
+                        <span class="price-currency">FREE</span>
+                    </div>
+                    <p class="plan-desc">Phù hợp cho cá nhân mới bắt đầu cho thuê trọ.</p>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fa-solid fa-check"></i> Quản lý tối đa <strong>5 phòng</strong></li>
+                    <li><i class="fa-solid fa-check"></i> Tạo hóa đơn tự động</li>
+                    <li><i class="fa-solid fa-check"></i> Quản lý hợp đồng cơ bản</li>
+                    <li><i class="fa-solid fa-check"></i> App Khách thuê đầy đủ</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Báo cáo Doanh Thu nâng cao</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Cảnh báo Nợ xấu AI</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Bản đồ Heatmap</li>
+                </ul>
+                <a href="#" class="btn btn-outline btn-block" id="plan-free-btn">Bắt Đầu Miễn Phí</a>
+            </div>
+
+            <!-- Plan 2: Pro (Popular) -->
+            <div class="pricing-card glass-card popular reveal" id="plan-pro">
+                <div class="popular-badge">⭐ ĐƯỢC YÊU THÍCH</div>
+                <div class="plan-icon" style="color: var(--accent-blue)"><i class="fa-solid fa-rocket"></i></div>
+                <div class="plan-header">
+                    <h3>Gói Nâng Cao</h3>
+                    <div class="plan-price">
+                        <span class="price-value" data-monthly="299" data-yearly="239">299</span><span class="price-unit">.000đ</span><span class="price-period">/tháng</span>
+                    </div>
+                    <p class="plan-desc">Công cụ đắc lực cho chủ nhà chuyên nghiệp.</p>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fa-solid fa-check"></i> Quản lý tối đa <strong>50 phòng</strong></li>
+                    <li><i class="fa-solid fa-check"></i> Mở khóa Dashboard Thống kê</li>
+                    <li><i class="fa-solid fa-check"></i> Gửi thông báo tự động</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Cảnh báo Nợ xấu AI</strong></li>
+                    <li><i class="fa-solid fa-check"></i> Xuất báo cáo Excel</li>
+                    <li><i class="fa-solid fa-check"></i> Hỗ trợ ưu tiên giờ hành chính</li>
+                    <li class="disabled"><i class="fa-solid fa-xmark"></i> Bản đồ Heatmap AI</li>
+                </ul>
+                <a href="#" class="btn btn-primary btn-block glow-effect" id="plan-pro-btn">Nâng Cấp PRO Ngay</a>
+            </div>
+
+            <!-- Plan 3: Enterprise -->
+            <div class="pricing-card glass-card enterprise reveal" id="plan-enterprise">
+                <div class="plan-icon" style="color: var(--accent-purple)"><i class="fa-solid fa-crown"></i></div>
+                <div class="plan-header">
+                    <h3>Gói Toàn Diện</h3>
+                    <div class="plan-price">
+                        <span class="price-value" data-monthly="999" data-yearly="799">999</span><span class="price-unit">.000đ</span><span class="price-period">/tháng</span>
+                    </div>
+                    <p class="plan-desc">Dành cho tổ chức, công ty quản lý vận hành lớn.</p>
+                </div>
+                <ul class="plan-features">
+                    <li><i class="fa-solid fa-check"></i> <strong>Không giới hạn</strong> số phòng</li>
+                    <li><i class="fa-solid fa-check"></i> Quản lý Phân quyền Nhân viên</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Bản đồ Heatmap AI</strong></li>
+                    <li><i class="fa-solid fa-check"></i> Chuyên gia hỗ trợ 24/7</li>
+                    <li><i class="fa-solid fa-check"></i> API tích hợp bên ngoài</li>
+                    <li><i class="fa-solid fa-check"></i> Audit Log & Bảo mật doanh nghiệp</li>
+                    <li><i class="fa-solid fa-check"></i> Tùy chỉnh hợp đồng AI</li>
+                </ul>
+                <a href="#" class="btn btn-enterprise btn-block" id="plan-enterprise-btn">Liên Hệ Tư Vấn</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA & Lead Capture Section -->
+    <section class="cta-section" id="register">
+        <div class="cta-glow"></div>
+        <div class="cta-content" style="display: flex; gap: 40px; text-align: left; max-width: 1000px; margin: 0 auto; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <h2 class="cta-title" style="font-size: 2.5rem; text-align: left;">Sẵn Sàng Bứt Phá Doanh Thu?</h2>
+                <p class="cta-sub" style="text-align: left;">Tham gia cùng hơn 1.250 Chủ nhà đang tối ưu hóa lợi nhuận với StayHub mỗi ngày. Đăng ký ngay để nhận tư vấn miễn phí 1-1 từ chuyên gia.</p>
+                <div style="margin-top: 2rem;">
+                    <p style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check" style="color: #10b981; margin-right: 8px;"></i> Dùng thử miễn phí 14 ngày</p>
+                    <p style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check" style="color: #10b981; margin-right: 8px;"></i> Cấu hình hệ thống tận nơi</p>
+                    <p style="margin-bottom: 0.5rem;"><i class="fa-solid fa-check" style="color: #10b981; margin-right: 8px;"></i> Không yêu cầu thẻ tín dụng</p>
+                </div>
+            </div>
+            <div class="glass-card" style="flex: 1; min-width: 300px; padding: 2rem; border-radius: 16px;">
+                <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.5rem;">Đăng ký nhận tư vấn</h3>
+                <form id="lead-form">
+                    <div style="margin-bottom: 1rem;">
+                        <input type="text" id="name" name="name" placeholder="Họ và tên của bạn" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit;">
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <select id="package" name="package" required style="width: 100%; padding: 12px 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.3); color: white; font-family: inherit;">
+                            <option value="" disabled selected>Gói dịch vụ quan tâm</option>
+                            <option value="Cơ Bản (FREE)">Gói Cơ Bản (FREE)</option>
+                            <option value="Nâng Cao (PRO)">Gói Nâng Cao (PRO)</option>
+                            <option value="Toàn Diện (ENTERPRISE)">Gói Toàn Diện (ENTERPRISE)</option>
+                            <option value="Chưa rõ, cần tư vấn">Chưa rõ, cần tư vấn</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block glow-effect" style="border: none; cursor: pointer; font-family: inherit;">
+                        <i class="fa-solid fa-paper-plane"></i> Gửi Yêu Cầu
+                    </button>
+                    <p id="form-message" style="margin-top: 1rem; text-align: center; font-size: 0.9rem; display: none;"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Capture Form Section (Phase 7.1) -->
+    <section class="lead-capture-section" id="contact">
+        <div class="lead-container glass-card reveal">
+            <div class="lead-content">
+                <h2>Bắt đầu tự động hoá dòng tiền ngay hôm nay!</h2>
+                <p>Để lại thông tin, đội ngũ chuyên gia PropTech của StayHub sẽ liên hệ setup hệ thống cho bạn trong 24h.</p>
+            </div>
+            <div class="lead-form-wrapper">
+                <form id="leadForm" class="lead-form">
+                    <div class="form-group">
+                        <input type="text" id="leadName" placeholder="Tên của bạn (VD: Anh Tuấn)" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="tel" id="leadPhone" placeholder="Số điện thoại Zalo" required pattern="[0-9]{10,11}">
+                    </div>
+                    <div class="form-group">
+                        <input type="number" id="leadRooms" placeholder="Số lượng phòng" required min="1">
+                    </div>
+                    <button type="submit" class="btn btn-primary glow-effect" id="leadSubmitBtn">
+                        <i class="fa-solid fa-paper-plane"></i> Đăng Ký Tư Vấn Miễn Phí
+                    </button>
+                    <div id="leadFormMsg" class="form-msg"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <div class="logo-icon"><i class="fa-solid fa-house-signal"></i></div>
+                    Stay<span class="logo-hub">Hub</span>
+                </a>
+                <p>Giải pháp Quản trị Vận hành Bất Động Sản Cho Thuê Toàn Diện. Được phát triển tại Việt Nam cho người Việt Nam.</p>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                    <a href="#" aria-label="Zalo"><i class="fa-solid fa-comment-dots"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Sản Phẩm</h4>
+                <ul>
+                    <li><a href="#">Tính Năng</a></li>
+                    <li><a href="#">Bảng Giá</a></li>
+                    <li><a href="#">Roadmap</a></li>
+                    <li><a href="#">App Khách Thuê</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Công Ty</h4>
+                <ul>
+                    <li><a href="#">Về Chúng Tôi</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Tuyển Dụng</a></li>
+                    <li><a href="#">Liên Hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-download">
+                <h4>Tải Ứng Dụng</h4>
+                <div class="app-badges">
+                    <a href="#" class="app-btn" id="ios-badge">
+                        <i class="fa-brands fa-apple"></i>
+                        <div class="app-btn-text">
+                            <span>Tải trên</span>
+                            <strong>App Store</strong>
+                        </div>
+                    </a>
+                    <a href="#" class="app-btn" id="android-badge">
+                        <i class="fa-brands fa-google-play"></i>
+                        <div class="app-btn-text">
+                            <span>Tải trên</span>
+                            <strong>Google Play</strong>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 StayHub. Đã đăng ký bản quyền. | <a href="#">Chính sách Bảo mật</a> | <a href="#">Điều khoản Dịch vụ</a></p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

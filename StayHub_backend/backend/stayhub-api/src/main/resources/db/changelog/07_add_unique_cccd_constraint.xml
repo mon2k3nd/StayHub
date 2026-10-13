@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="07-add-unique-cccd-constraint" author="antigravity">
+        <!-- Delete any existing duplicate CCCD numbers leaving only one (the one with lowest user_id) before adding UNIQUE constraint -->
+        <sql>
+            UPDATE tenant_profiles
+            SET cccd_number = NULL
+            WHERE cccd_number IS NOT NULL
+            AND user_id NOT IN (
+                SELECT MIN(user_id)
+                FROM tenant_profiles
+                WHERE cccd_number IS NOT NULL
+                GROUP BY cccd_number
+            );
+        </sql>
+        
+        <addUniqueConstraint tableName="tenant_profiles" columnNames="cccd_number" constraintName="uk_tenant_profiles_cccd_number"/>
+    </changeSet>
+
+</databaseChangeLog>

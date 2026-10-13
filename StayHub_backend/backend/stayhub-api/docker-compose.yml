@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  # ---- PostgreSQL Database ----
+  stayhub-db:
+    image: postgres:16-alpine
+    container_name: stayhub_postgres
+    environment:
+      POSTGRES_DB: stayhub_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    ports:
+      - "5432:5432"
+    volumes:
+      - stayhub_pgdata:/var/lib/postgresql/data
+    networks:
+      - stayhub_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d stayhub_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---- Spring Boot API ----
+  stayhub-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stayhub_api
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://stayhub-db:5432/stayhub_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: 12345678
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      stayhub-db:
+        condition: service_healthy
+    networks:
+      - stayhub_net
+    restart: unless-stopped
+
+volumes:
+  stayhub_pgdata:
+    name: stayhub_postgres_data
+
+networks:
+  stayhub_net:
+    name: stayhub_network

@@ -1,0 +1,8 @@
+targets:
+  $default:
+    sources:
+      exclude:
+        - "lib/main.dart"
+        - "test/**"
+        - "scripts/**"
+        - "lib/**/presentation/**"

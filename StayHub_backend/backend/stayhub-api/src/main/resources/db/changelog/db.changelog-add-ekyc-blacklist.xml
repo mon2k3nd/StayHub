@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="add-ekyc-blacklist" author="stayhub">
+        <!-- Add columns to tenant_profiles -->
+        <addColumn tableName="tenant_profiles">
+            <column name="kyc_status" type="varchar(50)" defaultValue="UNVERIFIED"/>
+            <column name="trust_score" type="int" defaultValueNumeric="100"/>
+        </addColumn>
+
+        <!-- Create tenant_blacklists table -->
+        <createTable tableName="tenant_blacklists">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="tenant_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="owner_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="varchar(500)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="proof_url" type="varchar(255)"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="tenant_blacklists"
+                                 baseColumnNames="tenant_id"
+                                 constraintName="fk_blacklist_tenant"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="tenant_blacklists"
+                                 baseColumnNames="owner_id"
+                                 constraintName="fk_blacklist_owner"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>

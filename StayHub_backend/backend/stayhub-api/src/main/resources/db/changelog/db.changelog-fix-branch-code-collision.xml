@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+      ═══════════════════════════════════════════════════════════════════════════
+      FIX: Trùng branch_code do chi nhánh đã xóa vẫn giữ mã gốc.
+
+      BỐI CẢNH:
+        - Branch có @SQLRestriction("is_deleted = false") → JPA KHÔNG nhìn thấy
+          các branch đã xóa mềm.
+        - Nhưng cột branch_code vẫn có UNIQUE INDEX ở tầng DB.
+        - Hệ quả: check-code báo "chưa trùng" (vì query bị lọc is_deleted),
+          nhưng INSERT lại vi phạm unique index → lỗi trùng mã.
+
+      QUY TẮC NGHIỆP VỤ (2 luồng tách biệt):
+        • Chi nhánh ĐANG HOẠT ĐỘNG (COMPLETED) → "NGỪNG HOẠT ĐỘNG":
+            xóa mềm, GIỮ dữ liệu lịch sử, gắn hậu tố `_OFF_<id>` vào
+            branch_code để giải phóng mã gốc cho chi nhánh mới.
+        • Chi nhánh ĐANG KHỞI TẠO (DRAFT) → "HỦY":
+            coi như CHƯA TỪNG tồn tại → xóa CỨNG để trả lại hoàn toàn mã.
+
+      GIẢI PHÁP CHO DỮ LIỆU CŨ:
+        1. Branch đã xóa mềm mà là DRAFT  → xóa cứng (giải phóng mã).
+        2. Branch đã xóa mềm mà là COMPLETED → chuyển SUSPENDED + `_OFF_<id>`.
+        3. Branch SUSPENDED còn giữ mã gốc → gắn `_OFF_<id>` (chống trùng).
+      ═══════════════════════════════════════════════════════════════════════════
+    -->
+
+    <!-- 1. DRAFT đã xóa mềm → xóa cứng (coi như chưa từng tồn tại). -->
+    <changeSet id="fix-branch-code-collision-1" author="stayhub">
+        <comment>Xóa cứng các chi nhánh DRAFT đã xóa mềm để giải phóng branch_code</comment>
+        <sql>
+            DELETE FROM shared_facilities
+            WHERE branch_id IN (
+                SELECT id FROM branches
+                WHERE is_deleted = true
+                  AND (creation_status IS NULL OR creation_status <> 'COMPLETED')
+            );
+        </sql>
+        <sql>
+            DELETE FROM rooms
+            WHERE branch_id IN (
+                SELECT id FROM branches
+                WHERE is_deleted = true
+                  AND (creation_status IS NULL OR creation_status <> 'COMPLETED')
+            );
+        </sql>
+        <sql>
+            DELETE FROM branches
+            WHERE is_deleted = true
+              AND (creation_status IS NULL OR creation_status <> 'COMPLETED');
+        </sql>
+        <rollback>
+            <!-- Không rollback: dữ liệu DRAFT chưa từng được công bố. -->
+        </rollback>
+    </changeSet>
+
+    <!-- 2. COMPLETED đã xóa mềm → SUSPENDED + hậu tố _OFF_<id>. -->
+    <changeSet id="fix-branch-code-collision-2" author="stayhub">
+        <comment>Gắn hậu tố _OFF_<id> cho branch_code của chi nhánh COMPLETED đã xóa mềm</comment>
+        <sql>
+            UPDATE branches
+            SET branch_code = branch_code || '_OFF_' || id
+            WHERE is_deleted = true
+              AND creation_status = 'COMPLETED'
+              AND branch_code IS NOT NULL
+              AND branch_code NOT LIKE '%\_OFF\_%' ESCAPE '\'
+              AND branch_code NOT LIKE '%\_DEL\_%' ESCAPE '\';
+        </sql>
+        <rollback>
+            <!-- Không thể rollback chính xác vì mất mã gốc; để trống có chủ đích. -->
+        </rollback>
+    </changeSet>
+
+    <changeSet id="fix-branch-code-collision-3" author="stayhub">
+        <comment>Đưa chi nhánh COMPLETED đã xóa mềm về trạng thái SUSPENDED và bỏ cờ is_deleted</comment>
+        <sql>
+            UPDATE branches
+            SET creation_status = 'SUSPENDED',
+                is_active = false,
+                is_deleted = false,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE is_deleted = true
+              AND creation_status = 'COMPLETED';
+        </sql>
+        <rollback>
+            <!-- Không rollback: đây là chuẩn hoá dữ liệu một chiều. -->
+        </rollback>
+    </changeSet>
+
+    <!-- 4. Branch SUSPENDED còn giữ mã gốc → gắn _OFF_<id> (chống trùng). -->
+    <changeSet id="fix-branch-code-collision-4" author="stayhub">
+        <comment>Gắn hậu tố _OFF_<id> cho branch_code của chi nhánh SUSPENDED còn giữ mã gốc</comment>
+        <sql>
+            UPDATE branches
+            SET branch_code = branch_code || '_OFF_' || id
+            WHERE creation_status = 'SUSPENDED'
+              AND branch_code IS NOT NULL
+              AND branch_code NOT LIKE '%\_OFF\_%' ESCAPE '\'
+              AND branch_code NOT LIKE '%\_DEL\_%' ESCAPE '\';
+        </sql>
+        <rollback>
+            <!-- Không rollback: chuẩn hoá một chiều. -->
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

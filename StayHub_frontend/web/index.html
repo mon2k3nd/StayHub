@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- pica.js for flutter_image_compress on web -->
+  <script src="https://cdn.jsdelivr.net/npm/pica@9.0.1/dist/pica.min.js" defer></script>
+
+  <!-- Explicitly load model-viewer for Flutter Web -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <!-- iOS meta tags & icons -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="StayHub">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>StayHub</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <!--
+    StayHub: aggressively drop any previously-registered Flutter service
+    worker and its caches BEFORE the app boots. Without this, the browser
+    keeps serving the OLD bundled assets (icons/images) even after they
+    are regenerated, which makes it look like "the icons never changed".
+  -->
+  <script>
+    (function () {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          regs.forEach(function (reg) { reg.unregister(); });
+        });
+      }
+      if (window.caches && caches.keys) {
+        caches.keys().then(function (keys) {
+          keys.forEach(function (k) { caches.delete(k); });
+        });
+      }
+    })();
+  </script>
+
+  <!--
+    StayHub: dùng renderer "canvaskit" (mặc định).
+    LƯU Ý QUAN TRỌNG: renderer "html" từng được bật để giảm giật, NHƯNG nó
+    KHÔNG render được icon font (CupertinoIcons/MaterialIcons) → toàn bộ icon
+    trong app hiện thành ô vuông (tofu). Vì vậy phải quay lại canvaskit để
+    icon hiển thị đúng. Để bù hiệu năng, các BackdropFilter blur nặng đã được
+    giảm bớt ở tầng widget.
+
+    LƯU Ý: KHÔNG dùng window.flutterConfiguration nữa — Flutter mới assert
+    rằng không được dùng đồng thời window.flutterConfiguration và config của
+    initializeEngine. Thay vào đó truyền renderer qua _flutter.loader.load().
+  -->
+  <!--
+    Cache-busting: thêm ?v=<build> vào flutter_bootstrap.js để trình duyệt
+    LUÔN tải bundle mới sau mỗi lần build. Không có dòng này, Safari/Chrome
+    giữ main.dart.js cũ trong HTTP cache → sửa code xong vẫn thấy giao diện cũ.
+    Đổi số version mỗi lần build.
+  -->
+  <script src="flutter_bootstrap.js?v=20261006a" async></script>
+  <script>
+    // Cấu hình renderer qua loader (thay cho window.flutterConfiguration đã deprecated).
+    (function () {
+      var _origLoad = window._flutter && window._flutter.loader && window._flutter.loader.load;
+      if (!_origLoad) return;
+      window._flutter.loader.load = function (opts) {
+        opts = opts || {};
+        opts.config = Object.assign({ renderer: "canvaskit" }, opts.config || {});
+        return _origLoad.call(window._flutter.loader, opts);
+      };
+    })();
+  </script>
+</body>
+
+</html>

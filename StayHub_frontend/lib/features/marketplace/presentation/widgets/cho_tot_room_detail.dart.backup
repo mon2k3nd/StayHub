@@ -1,0 +1,764 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:stayhub_frontend/core/theme/app_theme.dart';
+import 'package:stayhub_frontend/core/utils/image_url_helper.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:stayhub_frontend/core/services/osm_map_service.dart';
+
+class ChoTotRoomDetailLayout extends StatelessWidget {
+  final Map<String, dynamic> room;
+  final Map<String, dynamic> info;
+  final Map<String, dynamic> branchMap;
+  final List<String> images;
+  final String roomName;
+  final String address;
+  final double price;
+  final double area;
+  final double baseDeposit;
+  final String roomTypeLabel;
+  final String description;
+  final String resolvedOwnerName;
+  final dynamic resolvedOwnerAvatar;
+  final String ownerSubtitle;
+  final bool isWishlisted;
+  final VoidCallback onToggleWishlist;
+  final VoidCallback onRequireLogin;
+  final List<String> amenities;
+  final double elecPrice;
+  final double waterPrice;
+  final double internetPrice;
+  final double parkingPrice;
+  final double trashPrice;
+  final double serviceFee;
+  final String waterPricingType;
+  final VoidCallback? onMapTap;
+
+
+  const ChoTotRoomDetailLayout({
+    Key? key,
+    required this.room,
+    required this.info,
+    required this.branchMap,
+    required this.images,
+    required this.roomName,
+    required this.address,
+    required this.price,
+    required this.area,
+    required this.baseDeposit,
+    required this.roomTypeLabel,
+    required this.description,
+    required this.resolvedOwnerName,
+    required this.resolvedOwnerAvatar,
+    required this.ownerSubtitle,
+    required this.isWishlisted,
+    required this.onToggleWishlist,
+    required this.onRequireLogin,
+    this.amenities = const [],
+    this.elecPrice = 0,
+    this.waterPrice = 0,
+    this.internetPrice = 0,
+    this.parkingPrice = 0,
+    this.trashPrice = 0,
+    this.serviceFee = 0,
+    this.waterPricingType = '',
+    this.onMapTap,
+  }) : super(key: key);
+
+  String _formatPrice(double val) {
+    return NumberFormat.currency(locale: 'vi_VN', symbol: '').format(val).trim();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final floorStr = room['floor']?.toString() ?? '';
+    final roomCode = room['roomCode']?.toString() ?? '';
+    final numberOfBedrooms = int.tryParse(room['bedrooms']?.toString() ?? info['numberOfBedrooms']?.toString() ?? '') ?? 0;
+    final numberOfBathrooms = int.tryParse(room['bathrooms']?.toString() ?? info['numberOfBathrooms']?.toString() ?? '') ?? 0;
+    final capacity = int.tryParse(room['maxGuests']?.toString() ?? room['capacity']?.toString() ?? info['capacity']?.toString() ?? '') ?? 0;
+    final genderString = room['gender']?.toString() ?? info['gender']?.toString() ?? 'Tất cả';
+    final status = room['status']?.toString() ?? room['postStatus']?.toString() ?? 'AVAILABLE';
+    final isAvailable = status == 'TRONG' || status == 'AVAILABLE';
+    final poisRaw = room['pois'] ?? (room['branch'] != null ? room['branch']['pois'] : null) ?? room['poi'] ?? room['placesOfInterest'];
+
+    final latStr = room['latitude']?.toString() ?? room['lat']?.toString() ?? (room['branch'] != null ? room['branch']['latitude']?.toString() : null) ?? '';
+    final lngStr = room['longitude']?.toString() ?? room['lng']?.toString() ?? (room['branch'] != null ? room['branch']['longitude']?.toString() : null) ?? '';
+    final lat = double.tryParse(latStr) ?? 21.028511; // default Hanoi
+    final lng = double.tryParse(lngStr) ?? 105.804817; // default Hanoi
+    final center = LatLng(lat, lng);
+
+    return Container(
+      color: Colors.grey.shade200, // Nền xám như Chợ Tốt
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 1. Thông tin cơ bản (Card trắng đầu tiên)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Nhà Tốt / Thuê Phòng trọ / $roomTypeLabel', style: const TextStyle(color: Colors.black54, fontSize: 13)),
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(roomName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87, height: 1.3)),
+                    ),
+                    
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text('${_formatPrice(price)} đ/tháng', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.red)),
+                    const SizedBox(width: 12),
+                    if (area > 0) Text('${area.toInt()} m²', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Icon(CupertinoIcons.clock, size: 14, color: Colors.black54),
+                    const SizedBox(width: 4),
+                    const Text('Cập nhật gần đây', style: TextStyle(color: Colors.black54, fontSize: 12)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // 2. Địa chỉ
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Địa chỉ bất động sản', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                const SizedBox(height: 16),
+                Text(address, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.4)),
+                if (poisRaw != null) ...[
+                  const SizedBox(height: 16),
+                  GestureDetector(
+                    onTap: onMapTap,
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.grey.shade100, shape: BoxShape.circle),
+                          child: const Icon(CupertinoIcons.building_2_fill, size: 16, color: Colors.black87),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Builder(
+                            builder: (context) {
+                              int count = 0;
+                              if (poisRaw is List) count = poisRaw.length;
+                              else if (poisRaw is String) {
+                                count = poisRaw.split(',').where((e) => e.replaceAll('[','').replaceAll(']','').trim().isNotEmpty).length;
+                              }
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text('Tiện ích xung quanh', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87)),
+                                  Text('Có $count tiện ích gần đây', style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                                ],
+                              );
+                            }
+                          ),
+                        ),
+                        const Icon(CupertinoIcons.chevron_right, size: 16, color: Colors.black54),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: onMapTap,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 160,
+                      width: double.infinity,
+                      child: Stack(
+                        children: [
+                          AbsorbPointer(
+                            child: FlutterMap(
+                              options: MapOptions(
+                                initialCenter: center,
+                                initialZoom: 15.0,
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate: OsmMapService.tileUrl,
+                                  subdomains: OsmMapService.tileSubdomains,
+                                  userAgentPackageName: 'com.stayhub.app',
+                                ),
+                                MarkerLayer(
+                                  markers: [
+                                    Marker(
+                                      point: center,
+                                      width: 40, height: 40,
+                                      alignment: Alignment.topCenter,
+                                      child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 12, left: 0, right: 0,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.95),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(CupertinoIcons.map_fill, size: 16, color: Colors.blue.shade700),
+                                    const SizedBox(width: 8),
+                                    Text('Mở bản đồ lớn & Tiện ích', style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.bold, fontSize: 13)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 3. Đặc điểm
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Đặc điểm bất động sản', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: (isAvailable ? Colors.teal : Colors.red).shade50, shape: BoxShape.circle),
+                        child: Icon(isAvailable ? CupertinoIcons.check_mark_circled : CupertinoIcons.clear_circled, size: 20, color: (isAvailable ? Colors.teal : Colors.red).shade700),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text('Tình trạng', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                      const Spacer(),
+                      Text(isAvailable ? 'Còn phòng' : 'Đã thuê', style: TextStyle(fontSize: 14, color: isAvailable ? Colors.teal : Colors.red, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+                if (roomCode.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.purple.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.barcode, size: 20, color: Colors.purple.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Mã phòng', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text(roomCode, style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                if (area > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.blue.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.square_split_2x2, size: 20, color: Colors.blue.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Diện tích', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('${area.toInt()} m²', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (capacity > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.indigo.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.person_3_fill, size: 20, color: Colors.indigo.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Sức chứa', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('Tối đa $capacity người', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (genderString.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.pink.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.person_crop_circle_badge_exclam, size: 20, color: Colors.pink.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Giới tính', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text(genderString, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (numberOfBedrooms > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.orange.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.bed_double, size: 20, color: Colors.orange.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Số phòng ngủ', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('$numberOfBedrooms phòng', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (numberOfBathrooms > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.cyan.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.drop, size: 20, color: Colors.cyan.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Số phòng tắm', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('$numberOfBathrooms phòng', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (baseDeposit > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.green.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.money_dollar_circle, size: 20, color: Colors.green.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Số tiền cọc', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('${_formatPrice(baseDeposit)} đ', style: TextStyle(fontSize: 14, color: Colors.green.shade700, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                if (capacity > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.pink.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.person_2, size: 20, color: Colors.pink.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Sức chứa', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('Tối đa $capacity người', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (genderString.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.indigo.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.person_crop_circle_badge_exclam, size: 20, color: Colors.indigo.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Giới tính', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text(genderString, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (numberOfBedrooms > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.orange.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.bed_double, size: 20, color: Colors.orange.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Phòng ngủ', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('$numberOfBedrooms phòng', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (numberOfBathrooms > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.cyan.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.drop, size: 20, color: Colors.cyan.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Phòng tắm', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text('$numberOfBathrooms phòng', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+                if (floorStr.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.purple.shade50, shape: BoxShape.circle),
+                          child: Icon(CupertinoIcons.building_2_fill, size: 20, color: Colors.purple.shade700),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text('Tầng', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                        const Spacer(),
+                        Text(floorStr, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+
+          
+          // 4. Chi phí dịch vụ
+          if (elecPrice > 0 || waterPrice > 0 || internetPrice > 0 || parkingPrice > 0 || trashPrice > 0 || serviceFee > 0)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Chi tiết chi phí', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                  const SizedBox(height: 16),
+                  if (elecPrice > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.orange.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.bolt_fill, size: 20, color: Colors.orange),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Tiền điện', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(elecPrice)} đ/kwh', style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  if (waterPrice > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.blue.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.drop_fill, size: 20, color: Colors.blue),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Tiền nước', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(waterPrice)} đ' + (waterPricingType.contains('M3') ? '/m³' : '/người'), style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  if (internetPrice > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.teal.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.wifi, size: 20, color: Colors.teal),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Internet', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(internetPrice)} đ/tháng', style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  if (parkingPrice > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.indigo.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.car_detailed, size: 20, color: Colors.indigo),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Gửi xe', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(parkingPrice)} đ/tháng', style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  if (trashPrice > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.brown.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.trash, size: 20, color: Colors.brown),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Rác', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(trashPrice)} đ/tháng', style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                  if (serviceFee > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(color: Colors.blueGrey.withOpacity(0.1), shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.settings, size: 20, color: Colors.blueGrey),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text('Phí dịch vụ', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                          const Spacer(),
+                          Text('${_formatPrice(serviceFee)} đ/tháng', style: const TextStyle(fontSize: 14, color: Colors.black87, fontWeight: FontWeight.w500)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            
+          // Tiện ích & Nội thất
+          if (amenities.isNotEmpty)
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.all(16),
+              color: Colors.white,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Nội thất & Tiện ích', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 16,
+                    children: amenities.map((e) => Container(
+                      width: (MediaQuery.of(context).size.width - 40) / 2,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(color: Colors.green.shade50, shape: BoxShape.circle),
+                            child: const Icon(CupertinoIcons.checkmark_alt, size: 16, color: Colors.green),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(child: Text(e, style: const TextStyle(fontSize: 14, color: Colors.black87), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                        ],
+                      ),
+                    )).toList(),
+                  ),
+                ],
+              ),
+            ),
+
+          // 5. Mô tả chi tiết
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Mô tả chi tiết', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                const SizedBox(height: 16),
+                Text(description, style: const TextStyle(fontSize: 14, color: Colors.black87, height: 1.5)),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(24)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text('SĐT Liên hệ: ', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(ownerSubtitle, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: onRequireLogin,
+                        child: Text('Gọi ngay', style: TextStyle(color: Colors.blue.shade600, fontWeight: FontWeight.bold, fontSize: 14)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(color: Colors.orange.shade50, borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    children: [
+                      const Expanded(child: Text('Còn cân nhắc? Hỏi thêm bạn bè & người thân ngay', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: Colors.black87))),
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.black12)),
+                        child: const Row(
+                          children: [
+                            Icon(CupertinoIcons.reply, size: 16, color: Colors.black87),
+                            SizedBox(width: 4),
+                            Text('Chia sẻ', style: TextStyle(fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 5. Chủ nhà
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.all(16),
+            color: Colors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: Colors.grey.shade200,
+                      backgroundImage: resolvedOwnerAvatar != null && resolvedOwnerAvatar.toString().isNotEmpty ? NetworkImage(ImageUrlHelper.buildUrl(resolvedOwnerAvatar) ?? resolvedOwnerAvatar) : null,
+                      child: resolvedOwnerAvatar == null || resolvedOwnerAvatar.toString().isEmpty ? const Icon(CupertinoIcons.person_fill, color: Colors.grey) : null,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(resolvedOwnerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black87)),
+                          const SizedBox(height: 4),
+                          const Text('Phản hồi: --- 1 tin đăng', style: TextStyle(fontSize: 13, color: Colors.black54)),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(width: 8, height: 8, decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle)),
+                              const SizedBox(width: 6),
+                              const Text('Hoạt động gần đây', style: TextStyle(fontSize: 12, color: Colors.black54)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('Chat nhanh:', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
+                              child: const Text('Có video không ạ?', style: TextStyle(fontSize: 13, color: Colors.black87)),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
+                              child: const Text('Điện nước giá sao?', style: TextStyle(fontSize: 13, color: Colors.black87)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          
+          const SizedBox(height: 120),
+        ],
+      ),
+    );
+  }
+}

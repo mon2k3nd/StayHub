@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         Dual Address System — 2026
+         Mục đích:
+           • address_old = địa chỉ 4 cấp (63 tỉnh) → UI, Search, Maps
+           • address_new = địa chỉ 3 cấp (34 tỉnh, bỏ quận) → Hợp đồng, eKYC pháp lý
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ── 1. BRANCHES table ─────────────────────────────────────────── -->
+    <changeSet id="dual-address-branches-1" author="stayhub">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="branches" columnName="address_old"/></not>
+        </preConditions>
+        <addColumn tableName="branches">
+            <column name="address_old" type="VARCHAR(512)"
+                    remarks="Địa chỉ cũ 4 cấp (63 tỉnh): dùng cho UI, Search, Map"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="dual-address-branches-2" author="stayhub">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="branches" columnName="address_new"/></not>
+        </preConditions>
+        <addColumn tableName="branches">
+            <column name="address_new" type="VARCHAR(512)"
+                    remarks="Địa chỉ mới 3 cấp (34 tỉnh, bỏ quận): dùng cho Hợp đồng, eKYC pháp lý"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Migrate: address_old = address (giá trị hiện có) nếu chưa có -->
+    <changeSet id="dual-address-branches-migrate" author="stayhub">
+        <sql>
+            UPDATE branches
+            SET address_old = address
+            WHERE address_old IS NULL AND address IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <!-- ── 2. ROOMS table ────────────────────────────────────────────── -->
+    <changeSet id="dual-address-rooms-1" author="stayhub">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="rooms" columnName="address_old"/></not>
+        </preConditions>
+        <addColumn tableName="rooms">
+            <column name="address_old" type="VARCHAR(512)"
+                    remarks="Địa chỉ cũ 4 cấp: kế thừa từ Branch, dùng cho UI/Map"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="dual-address-rooms-2" author="stayhub">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="rooms" columnName="address_new"/></not>
+        </preConditions>
+        <addColumn tableName="rooms">
+            <column name="address_new" type="VARCHAR(512)"
+                    remarks="Địa chỉ mới 3 cấp: kế thừa từ Branch, dùng cho pháp lý"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- Migrate: address_old = address (giá trị hiện có) nếu chưa có -->
+    <changeSet id="dual-address-rooms-migrate" author="stayhub">
+        <sql>
+            UPDATE rooms
+            SET address_old = address
+            WHERE address_old IS NULL AND address IS NOT NULL;
+        </sql>
+    </changeSet>
+
+    <!-- ── 3. CONTRACTS table ────────────────────────────────────────── -->
+    <changeSet id="dual-address-contracts-1" author="stayhub">
+        <preConditions onFail="MARK_RAN">
+            <not><columnExists tableName="contracts" columnName="branch_address_new"/></not>
+        </preConditions>
+        <addColumn tableName="contracts">
+            <column name="branch_address_new" type="VARCHAR(512)"
+                    remarks="Snapshot địa chỉ pháp lý 3 cấp (34 tỉnh) tại thời điểm ký hợp đồng"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

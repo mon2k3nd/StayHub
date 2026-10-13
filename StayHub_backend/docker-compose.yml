@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  stayhub-db:
+    image: postgres:15-alpine
+    container_name: stayhub-db
+    restart: always
+    environment:
+      POSTGRES_DB: stayhub_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+    ports:
+      - "5432:5432"
+    volumes:
+      - stayhub_db_data:/var/lib/postgresql/data
+
+  stayhub-api:
+    build: .
+    container_name: stayhub-api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - DATABASE_URL=jdbc:postgresql://stayhub-db:5432/stayhub_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=12345678
+      # Bạn có thể thay đổi các biến môi trường cấu hình tại đây, ví dụ:
+      # - JWT_SECRET=my-very-secure-jwt-secret-key-change-it-in-prod
+      # - GEMINI_API_KEY=your-gemini-api-key
+    depends_on:
+      - stayhub-db
+    networks:
+      - stayhub-network
+
+volumes:
+  stayhub_db_data:
+
+networks:
+  stayhub-network:
+    driver: bridge

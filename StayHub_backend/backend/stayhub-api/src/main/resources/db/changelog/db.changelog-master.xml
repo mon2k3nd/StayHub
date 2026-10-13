@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <include file="db/changelog/changes/v1_0_0_create_chat_tables.xml"/>
+    <include file="db/changelog/changes/v1_0_1_checkout_and_bills.xml"/>
+    <include file="db/changelog/db.changelog-create-electronic-contracts.xml"/>
+    <include file="db/changelog/db.changelog-add-paper-contract-images.xml"/>
+    <include file="db/changelog/db.changelog-create-owner-contract-templates.xml"/>
+    <include file="db/changelog/db.changelog-upgrade-notifications.xml"/>
+    <include file="db/changelog/db.changelog-create-admin-tables.xml"/>
+    <include file="db/changelog/db.changelog-add-branch-coordinates.xml"/>
+    <include file="db/changelog/db.changelog-upgrade-branch-room-schema.xml"/>
+    <include file="db/changelog/db.changelog-add-ekyc-blacklist.xml"/>
+    <include file="db/changelog/07_add_unique_cccd_constraint.xml"/>
+    <include file="db/changelog/db.changelog-alter-refresh-token.xml"/>
+    <include file="db/changelog/db.changelog-add-shared-facilities.xml"/>
+    <include file="db/changelog/db.changelog-dual-address-system.xml"/>
+    <include file="db/changelog/db.changelog-branch-management-wizard.xml"/>
+    <include file="db/changelog/db.changelog-fix-branch-code-collision.xml"/>
+
+</databaseChangeLog>

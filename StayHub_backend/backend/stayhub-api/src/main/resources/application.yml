@@ -1,0 +1,96 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+  tomcat:
+    max-http-form-post-size: 100MB
+    max-swallow-size: 100MB
+    # Số luồng Tomcat phải NHỎ HƠN hoặc BẰNG sức chứa của Hikari pool, nếu
+    # không các request sẽ xếp hàng chờ connection và làm cạn `max_connections`
+    # của Postgres → "sorry, too many clients already" → backend sập dây chuyền.
+    threads:
+      max: 80
+      min-spare: 20
+    accept-count: 100
+    max-connections: 200
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  datasource:
+
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/stayhub_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345678}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Giữ pool NHỎ HƠN `max_connections` của Postgres (mặc định 100) để chừa
+      # slot cho psql/pgAdmin và các tiến trình khác. Pool 100 + Tomcat 400
+      # trước đây đã làm cạn connection → backend sập liên tục.
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+      # Phát hiện connection chết sớm để không giữ slot rác.
+      keepalive-time: 300000
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:mon2k3nd@gmail.com}
+    password: ${MAIL_PASSWORD:zgweonvdjcmrnrkj}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+jwt:
+  secret: ${JWT_SECRET:stayhub-secret-key-must-be-at-least-256-bits-long-for-hs256}
+  expiration: 86400000  # 24 hours
+
+logging:
+  level:
+    com.stayhub: DEBUG
+    org.springframework.security: INFO
+
+# ── Seed dữ liệu mẫu (CHỈ dùng cho dev/test) ───────────────────────
+# Bật để gieo 1 phòng mẫu cho mỗi hạng mục loại phòng (owner 5).
+# Môi trường thật (application-prod.yml) LUÔN đặt false.
+stayhub:
+  seed:
+    room-categories: ${SEED_ROOM_CATEGORIES:true}
+  # ── CORS ──────────────────────────────────────────────────────────
+  # Origin được phép gọi API. Ngoài danh sách này, SecurityConfig còn tự
+  # động cho phép mọi tunnel tạm (https://*.trycloudflare.com, ngrok) để
+  # test trên iPhone/thiết bị thật mà không phải sửa cấu hình mỗi lần.
+  cors:
+    allowed-origins: ${STAYHUB_CORS_ORIGINS:http://localhost:3000,http://localhost:8080,http://localhost:5173,http://localhost:62686,http://localhost:62687}
+
+# ── VNPay Payment Gateway ──────────────────────────────────────────
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE:DEMO_TMN}
+  hash-secret: ${VNPAY_HASH_SECRET:CHANGEME_VNPAY_SECRET}
+  payment-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  ipn-url: ${VNPAY_IPN_URL:https://api.stayhub.vn/v1/payment/vnpay/ipn}
+
+# ── Scheduling ────────────────────────────────────────────────────

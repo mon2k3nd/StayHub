@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://stayhub-db:5432/stayhub_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:12345678}
+  jpa:
+    hibernate:
+      ddl-auto: update  # Giữ update để tiện demo, thực tế prod nên dùng validate với liquibase
+    show-sql: false
+  liquibase:
+    enabled: true
+
+# ── Seed dữ liệu mẫu ──────────────────────────────────────────────────
+# Môi trường THẬT: TUYỆT ĐỐI không gieo phòng mẫu (tránh rác dữ liệu).
+# Ghi đè cứng = false, bất kể biến môi trường SEED_ROOM_CATEGORIES.
+stayhub:
+  seed:
+    room-categories: false
+
+logging:
+  level:
+    com.stayhub: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN

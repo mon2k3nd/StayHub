@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="1" author="admin-v6.8">
+        <createTable tableName="saas_plans">
+            <column name="id" type="VARCHAR(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="price" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_branches" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_rooms" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="owner_subscriptions">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="owner_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="plan_id" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="owner_id"
+                                 baseTableName="owner_subscriptions"
+                                 constraintName="fk_owner_sub_owner"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+        <addForeignKeyConstraint baseColumnNames="plan_id"
+                                 baseTableName="owner_subscriptions"
+                                 constraintName="fk_owner_sub_plan"
+                                 referencedColumnNames="id"
+                                 referencedTableName="saas_plans"/>
+
+        <createTable tableName="saas_marketing_campaigns">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="discount_code" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="discount_percent" type="DECIMAL(5, 2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_audience" type="VARCHAR(255)"/>
+            <column name="start_date" type="TIMESTAMP"/>
+            <column name="end_date" type="TIMESTAMP"/>
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="system_legal_blueprints">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="core_contract" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="safety_clauses" type="TEXT"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="system_audit_logs">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="admin_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="target_id" type="VARCHAR(255)"/>
+            <column name="previous_data" type="TEXT"/>
+            <column name="new_data" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint baseColumnNames="admin_id"
+                                 baseTableName="system_audit_logs"
+                                 constraintName="fk_audit_admin"
+                                 referencedColumnNames="id"
+                                 referencedTableName="users"/>
+    </changeSet>
+
+    <changeSet id="2" author="admin-v6.8">
+        <insert tableName="saas_plans">
+            <column name="id" value="FREE"/>
+            <column name="name" value="Gói Cơ Bản (Miễn phí)"/>
+            <column name="price" valueNumeric="0.00"/>
+            <column name="max_branches" valueNumeric="1"/>
+            <column name="max_rooms" valueNumeric="5"/>
+        </insert>
+        <insert tableName="saas_plans">
+            <column name="id" value="PREMIUM_STANDARD"/>
+            <column name="name" value="Gói Tiêu Chuẩn"/>
+            <column name="price" valueNumeric="199000.00"/>
+            <column name="max_branches" valueNumeric="3"/>
+            <column name="max_rooms" valueNumeric="30"/>
+        </insert>
+        <insert tableName="saas_plans">
+            <column name="id" value="PREMIUM_PRO"/>
+            <column name="name" value="Gói Chuyên Nghiệp"/>
+            <column name="price" valueNumeric="499000.00"/>
+            <column name="max_branches" valueNumeric="10"/>
+            <column name="max_rooms" valueNumeric="100"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="3" author="admin-v6.8">
+        <insert tableName="users">
+            <column name="name" value="Hệ Thống Trọng Tài"/>
+            <column name="phone_number" value="0999999999"/>
+            <column name="email" value="admin@stayhub.com"/>
+            <!-- password is admin123 -> hashed with bcrypt -->
+            <column name="password_hash" value="$2a$10$7/O8LItM2O.j1JqE7rB0C.D8C1Z6.5KjTqG3X9X9/T4M9c/1Q1uC6"/>
+            <column name="role_id" value="ADMIN"/>
+            <column name="status" value="ACTIVE"/>
+            <column name="owner_status" value="APPROVED"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

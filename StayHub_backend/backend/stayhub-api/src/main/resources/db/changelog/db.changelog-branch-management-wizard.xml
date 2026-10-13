@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ============================================================= -->
+    <!--  QUẢN LÝ CHI NHÁNH — Wizard 4 bước bắt buộc                    -->
+    <!--  Bổ sung tiến độ từng bước cho branches + cấu hình phòng chi   -->
+    <!--  tiết (WC chung, chỉ số ban đầu, đồng hồ riêng, override giá)  -->
+    <!--  và bảng kiểm kê tài sản trong phòng (room_inventory).         -->
+    <!-- ============================================================= -->
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 1) branches: tiến độ 4 bước + mốc hoàn tất                    -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <changeSet id="branch-management-add-step-progress" author="antigravity">
+        <addColumn tableName="branches">
+            <column name="step1_done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step2_done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step3_done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="step4_done" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="completed_at" type="TIMESTAMP"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 2) rooms: WC chung, loại phòng con, chỉ số ban đầu,           -->
+    <!--    đồng hồ riêng, cơ chế ghi đè dịch vụ                       -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <changeSet id="branch-management-add-room-detail-config" author="antigravity">
+        <addColumn tableName="rooms">
+            <column name="is_shared_wc" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="shared_wc_id" type="VARCHAR(50)"/>
+            <column name="room_sub_type" type="VARCHAR(30)"/>
+            <column name="old_electricity_index" type="DOUBLE PRECISION"/>
+            <column name="old_water_index" type="DOUBLE PRECISION"/>
+            <column name="has_private_electric_meter" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="has_private_water_meter" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="override_services" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="override_garbage_fee" type="DOUBLE PRECISION"/>
+            <column name="override_internet_fee" type="DOUBLE PRECISION"/>
+            <column name="override_parking_fee" type="DOUBLE PRECISION"/>
+        </addColumn>
+    </changeSet>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 3) room_inventory: kiểm kê tài sản trong từng phòng           -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <changeSet id="branch-management-create-room-inventory" author="antigravity">
+        <createTable tableName="room_inventory">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="room_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="branch_id" type="BIGINT"/>
+            <column name="asset_name" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="brand" type="VARCHAR(100)"/>
+            <column name="model" type="VARCHAR(100)"/>
+            <column name="quantity" type="INTEGER" defaultValueNumeric="1"/>
+            <column name="condition_status" type="VARCHAR(20)" defaultValue="NEW"/>
+            <column name="estimated_value" type="DOUBLE PRECISION"/>
+            <column name="images" type="TEXT"/>
+            <column name="notes" type="TEXT"/>
+            <column name="is_deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex tableName="room_inventory" indexName="idx_room_inventory_room">
+            <column name="room_id"/>
+        </createIndex>
+
+        <createIndex tableName="room_inventory" indexName="idx_room_inventory_branch">
+            <column name="branch_id"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="room_id"
+                                 baseTableName="room_inventory"
+                                 constraintName="fk_room_inventory_room"
+                                 referencedColumnNames="id"
+                                 referencedTableName="rooms"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseColumnNames="branch_id"
+                                 baseTableName="room_inventory"
+                                 constraintName="fk_room_inventory_branch"
+                                 referencedColumnNames="id"
+                                 referencedTableName="branches"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <!-- 4) Chuẩn hoá dữ liệu cũ: chi nhánh đang ACTIVE coi như đã     -->
+    <!--    hoàn tất đủ 4 bước (tránh ẩn oan các khu trọ đang chạy).   -->
+    <!-- ─────────────────────────────────────────────────────────── -->
+    <changeSet id="branch-management-backfill-completed-steps" author="antigravity">
+        <sql>
+            UPDATE branches
+            SET step1_done = TRUE,
+                step2_done = TRUE,
+                step3_done = TRUE,
+                step4_done = TRUE,
+                completed_at = COALESCE(completed_at, created_at)
+            WHERE creation_status = 'ACTIVE';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
